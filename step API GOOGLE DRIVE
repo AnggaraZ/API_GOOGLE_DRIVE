@@ -1,0 +1,82 @@
+Untuk membuat sebuah landing page yang menggunakan Google Drive API untuk memasukan video menggunakan PHP, pertama-tama Anda perlu memastikan bahwa Anda memiliki akses ke API Google Drive dan memiliki akun Google yang terkait dengan API tersebut.
+
+Ikuti langkah-langkah ini untuk mengaktifkan API Google Drive dan mendapatkan kunci API:
+Buka halaman API Console di https://console.developers.google.com/apis/.
+Klik tombol "Create Project" untuk membuat proyek baru.
+Setelah proyek dibuat, pilih proyek tersebut dari daftar proyek di panel kiri.
+Klik tombol "Enable APIs and Services".
+Cari API Google Drive dengan menggunakan kotak pencarian, kemudian klik tombol "Enable" untuk mengaktifkannya.
+Setelah API diaktifkan, klik tombol "Create Credentials" untuk membuat kunci API.
+Pada jendela yang muncul, pilih "Web server" sebagai "Application type" dan "Application Data" sebagai "Authorized API Scopes". Kemudian klik tombol "What credentials do I need?".
+Isi formulir yang muncul dengan informasi yang diperlukan, kemudian klik tombol "Create OAuth client ID".
+Setelah kunci API dibuat, Anda akan melihat halaman yang menampilkan kunci API yang baru saja dibuat. Salin kunci API tersebut dan simpan di tempat yang aman, karena Anda akan membutuhkannya nanti.
+Selanjutnya, Anda perlu menginstall dan mengaktifkan library PHP untuk mengakses API Google Drive. Anda dapat menggunakan library Google API Client untuk ini.
+Buka halaman dokumentasi untuk library Google API Client di https://developers.google.com/api-client-library/php/.
+Ikuti langkah-langkah yang diberikan untuk mengunduh dan menginstall library tersebut di server Anda.
+Setelah library terinstall, buat sebuah skrip PHP baru untuk mengakses API Google Drive. Skrip ini akan digunakan untuk mengambil informasi tentang video yang tersimpan di Google Drive Anda.
+
+Mulai dengan mengimpor library Google API Client ke dalam skrip Anda dengan menambahkan baris berikut:
+
+require_once 'path/to/google-api-php-client/vendor/autoload.php';
+
+Selanjutnya, buat sebuah objek "Google_Client" dan masukkan kunci API yang Anda dapatkan sebelumnya:
+
+$client = new Google_Client();
+$client->setApplicationName('My App');
+$client->setAuthConfig('path/to/api_key.json');
+$client->addScope(Google_Service_Drive::DRIVE_METADATA_READONLY);
+
+// Buat objek Google Drive API
+$service = new Google_Service_Drive($client);
+
+// Cari video yang tersimpan di Google Drive
+$results = $service->files->listFiles(array(
+  'q' => "mimeType='video/mp4'",
+  'fields' => 'nextPageToken, files(id, name, createdTime)',
+));
+
+$videos = array();
+
+// Iterasi melalui hasil pencarian dan masukkan informasi video ke dalam array
+if (count($results->getFiles()) == 0) {
+  echo "Tidak ada video yang ditemukan.";
+} else {
+  foreach ($results->getFiles() as $video) {
+    $videos[] = array(
+      'id' => $video->getId(),
+      'name' => $video->getName(),
+      'createdTime' => $video->getCreatedTime(),
+    );
+  }
+}
+
+// Tampilkan array yang berisi informasi video
+print_r($videos);
+
+Kode di atas akan mencari video yang tersimpan di Google Drive Anda dan menampilkan informasi tentang video tersebut dalam bentuk array.
+
+Selanjutnya, Anda dapat menggunakan informasi yang didapat dari API Google Drive untuk membuat landing page yang menampilkan video. Misalnya, Anda dapat menggunakan tag HTML <video> untuk menampilkan video di halaman web.
+Buat sebuah file HTML baru dan tambahkan kode berikut untuk menampilkan video yang Anda dapatkan dari API Google Drive:
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Video Landing Page</title>
+</head>
+<body>
+  <h1>My Videos</h1>
+  <ul>
+    <?php foreach ($videos as $video): ?>
+      <li>
+        <h2><?php echo $video['name']; ?></h2>
+        <p>Created on: <?php echo $video['createdTime']; ?></p>
+        <video src="https://drive.google.com/uc?id=<?php echo $video['id']; ?>" controls></video>
+      </li>
+    <?php endforeach; ?>
+  </ul>
+</body>
+</html>
+
+Kode di atas akan menampilkan daftar video yang tersimpan di Google Drive Anda, dengan judul dan tanggal pembuatan ditampilkan di bawah video.
+
+Selesai! Anda telah berhasil membuat sebuah landing page yang menamp
